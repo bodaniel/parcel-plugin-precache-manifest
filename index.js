@@ -64,13 +64,23 @@ module.exports = bundler => {
       files: [],
       ver: bundle.getHash()
     };
-    recurseBundle(bundle, b => {
-      const base = basename(b.name)
-      if (inject === 'auto' && ['sw.js', 'serviceWorker.js', 'service-worker.js'].includes(base))
-        inject = resolve(outDir, b.name);
-      if (!filter.test(b.name))
-        manifest.files.push(publicURL+(base === 'index.html' ? '' : relative(outDir, b.name).split(sep).join('/')));
-    })
+    const bundles = bundle.entryAsset ? new Set([bundle]) : new Set(bundle.childBundles);
+    bundles.forEach((childBundle) => {
+      const childBundleHash = childBundle.getHash();
+      recurseBundle(childBundle, (b) => {
+        const base = basename(b.name);
+        if (inject === 'auto' && ['sw.js', 'serviceWorker.js', 'service-worker.js'].includes(base))
+          inject = resolve(outDir, b.name);
+        if (!filter.test(b.name)) {
+          const entry = {
+            url: publicURL+(base === 'index.html' ? '' : relative(outDir, b.name).split(sep).join('/')),
+            revision: b.type === 'html' ? childBundleHash : null
+          };
+          manifest.files.push(entry);
+        }
+      });
+    });
+
     const stringManifest = JSON.stringify(manifest);
     const data = asJSON ? stringManifest : `self["${variableName}"]=${stringManifest};`;
     if (inject === 'auto')
