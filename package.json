@@ -1,10 +1,13 @@
 {
-  "name": "parcel-plugin-precache-manifest",
-  "version": "3.0.1",
+  "name": "@sodra/parcel-plugin-precache-manifest",
+  "version": "3.1.1",
   "description": "A simple Parcel plugin that generates a precache manifest that can be imported by service workers",
   "main": "index.js",
   "author": "Arjun Barrett",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "pwa",
     "parcel-bundler",
